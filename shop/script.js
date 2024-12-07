@@ -1,3 +1,4 @@
+// HTML element references
 const itemsContainer = document.getElementById("items");
 const searchInput = document.getElementById("search");
 const filters = document.querySelectorAll(".filter");
@@ -8,10 +9,10 @@ const totalPriceElement = document.getElementById("total-price");
 
 let cart = [];
 
-// Filter items based on search, category, and price
+// Function to filter items based on search, category, and price
 function filterItems() {
   const keyword = searchInput.value.toLowerCase();
-  const selectedCategory = document.querySelector(".filter.active").id;
+  const selectedCategory = document.querySelector(".filter.active")?.id || "all";
   const selectedPrices = Array.from(priceCheckboxes)
     .filter((checkbox) => checkbox.checked)
     .map((checkbox) => checkbox.value);
@@ -37,7 +38,7 @@ function filterItems() {
   });
 }
 
-// Event listeners for filters
+// Event listeners for filters and search
 filters.forEach((filter) =>
   filter.addEventListener("click", function () {
     filters.forEach((f) => f.classList.remove("active"));
@@ -52,46 +53,49 @@ priceCheckboxes.forEach((checkbox) =>
 
 searchInput.addEventListener("input", filterItems);
 
-// Add item to the cart
+// Function to add an item to the cart
 function addToCart(itemName, price) {
   const existingItem = cart.find((item) => item.itemName === itemName);
 
   if (existingItem) {
-    existingItem.quantity += 1; // Increment quantity for existing item
+    existingItem.quantity += 1; // Increment quantity for the existing item
   } else {
-    cart.push({ itemName, price, quantity: 1 }); // Add new item with quantity 1
+    cart.push({ itemName, price, quantity: 1 }); // Add a new item with quantity 1
   }
 
-  updateCart();
+  updateCart(); // Update cart display and total
 }
 
-// Update cart display and total
+// Function to update the cart display and total
 function updateCart() {
-  cartItemsContainer.innerHTML = "";
-  let totalPrice = 0;
+  cartItemsContainer.innerHTML = ""; // Clear the cart display
+  let totalPrice = 0; // Initialize total price
 
   cart.forEach((item) => {
-    totalPrice += item.price * item.quantity;
+    const itemTotalPrice = item.price * item.quantity;
+    totalPrice += itemTotalPrice;
+
+    // Create and append a cart item element
     const cartItem = document.createElement("div");
     cartItem.className = "cart-item";
-    cartItem.innerHTML = `<span>${item.itemName} (x${item.quantity})</span><span>Ksh${(
-      item.price * item.quantity
-    ).toFixed(2)}</span>`;
+    cartItem.innerHTML = `<span>${item.itemName} (x${item.quantity})</span>
+                          <span>Ksh${itemTotalPrice.toFixed(2)}</span>`;
     cartItemsContainer.appendChild(cartItem);
   });
 
-  cartCount.textContent = `(${cart.length})`;
-  totalPriceElement.textContent = `Total: Ksh${totalPrice.toFixed(2)}`;
+  // Update cart count and total price display
+  cartCount.textContent = `(${cart.length} items)`;
+  totalPriceElement.textContent = `Total: Ksh${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}`;
 }
 
-// Checkout cart
+// Function to handle checkout
 function checkout() {
   if (cart.length === 0) {
     alert("Your cart is empty!");
   } else {
-    alert("Checkout successful!");
-    cart = [];
-    updateCart();
+    alert(`Pay total amount to M-PESA Buy Goods Till Number: 8935534 Total: Ksh${cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toFixed(2)}`);
+    cart = []; // Clear the cart
+    updateCart(); // Refresh the cart display
   }
 }
 
